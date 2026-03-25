@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TON AI Agent — Next-Gen Intelligence on TON</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
+<style>
+:root {
+  --bg-primary: #0a0b0f;
+  --bg-secondary: #12141c;
+  --bg-card: #181b27;
+  --bg-card-hover: #1e2236;
+  --accent-blue: #0098ea;
+  --accent-cyan: #00d4ff;
+  --accent-purple: #8b5cf6;
+  --accent-pink: #ec4899;
+  --accent-green: #10b981;
+  --accent-orange: #f59e0b;
+  --text-primary: #f0f2f8;
+  --text-secondary: #8b8fa3;
+  --text-muted: #555973;
+  --border: rgba(255,255,255,0.06);
+  --glow-blue: 0 0 40px rgba(0,152,234,0.3);
+  --glow-cyan: 0 0 40px rgba(0,212,255,0.2);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* === ANIMATED BACKGROUND === */
+.bg-mesh {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 800px 600px at 20% 20%, rgba(0,152,234,0.08), transparent),
+    radial-gradient(ellipse 600px 800px at 80% 60%, rgba(139,92,246,0.06), transparent),
+    radial-gradient(ellipse 500px 500px at 50% 90%, rgba(0,212,255,0.05), transparent);
+}
+
+.floating-orbs {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  z-index: 0; pointer-events: none; overflow: hidden;
+}
+
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(80px);
+  animation: orbFloat 20s ease-in-out infinite;
+}
+.orb:nth-child(1) { width:400px; height:400px; background:rgba(0,152,234,0.1); top:10%; left:10%; animation-delay:0s; }
+.orb:nth-child(2) { width:300px; height:300px; background:rgba(139,92,246,0.08); top:60%; right:10%; animation-delay:-7s; }
+.orb:nth-child(3) { width:350px; height:350px; background:rgba(0,212,255,0.06); bottom:10%; left:40%; animation-delay:-14s; }
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  25% { transform: translate(60px,-40px) scale(1.1); }
+  50% { transform: translate(-30px,60px) scale(0.9); }
+  75% { transform: translate(-60px,-20px) scale(1.05); }
+}
+
+/* === GRID OVERLAY === */
+.grid-overlay {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse 60% 50% at 50% 40%, black, transparent);
+}
+
+/* === NAVBAR === */
+.navbar {
+  position: fixed; top:0; left:0; width:100%; z-index:1000;
+  padding: 16px 40px;
+  background: rgba(10,11,15,0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  transition: all 0.3s;
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: 12px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800; font-size: 1.4rem;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.nav-logo .logo-icon {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 18px; font-weight: 900;
+  -webkit-text-fill-color: white;
+  box-shadow: var(--glow-blue);
+}
+
+.nav-links {
+  display: flex; gap: 32px; list-style: none;
+}
+.nav-links a {
+  color: var(--text-secondary); text-decoration: none;
+  font-size: 0.9rem; font-weight: 500;
+  transition: color 0.3s;
+  position: relative;
+}
+.nav-links a:hover { color: var(--text-primary); }
+.nav-links a::after {
+  content:''; position:absolute; bottom:-4px; left:0; width:0;
+  height:2px; background: var(--accent-cyan);
+  transition: width 0.3s;
+}
+.nav-links a:hover::after { width:100%; }
+
+.nav-actions { display:flex; gap:12px; align-items:center; }
+
+.btn {
+  padding: 10px 24px; border-radius: 50px; font-family: 'Sora';
+  font-weight: 600; font-size: 0.85rem; cursor: pointer;
+  transition: all 0.3s; border: none; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+
+.btn-outline {
+  background: transparent; color: var(--text-primary);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.btn-outline:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+  color: white; box-shadow: 0 4px 20px rgba(0,152,234,0.3);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(0,152,234,0.4); }
+
+.btn-glow {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  color: white; box-shadow: 0 4px 30px rgba(139,92,246,0.3);
+  font-size: 1rem; padding: 14px 36px;
+}
+.btn-glow:hover { transform: translateY(-3px); box-shadow: 0 8px 40px rgba(139,92,246,0.5); }
+
+/* === HERO === */
+.hero {
+  position: relative; z-index:1;
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; padding: 120px 20px 80px;
+}
+
+.hero-content { max-width: 900px; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 20px; border-radius: 50px;
+  background: rgba(0,152,234,0.1);
+  border: 1px solid rgba(0,152,234,0.2);
+  color: var(--accent-cyan); font-size: 0.8rem; font-weight: 600;
+  margin-bottom: 32px;
+  animation: fadeInUp 0.8s ease-out;
+}
+.hero-badge .pulse { width:8px; height:8px; background:var(--accent-green); border-radius:50%; animation: pulse 2s infinite; }
+
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.5)} }
+
+.hero h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-weight: 900; line-height: 1.05;
+  margin-bottom: 24px;
+  animation: fadeInUp 0.8s ease-out 0.1s both;
+}
+
+.hero h1 .gradient-text {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan), var(--accent-purple));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+}
+
+@keyframes shimmer { 0%{background-position:0% center} 100%{background-position:200% center} }
+
+.hero p {
+  font-size: 1.15rem; color: var(--text-secondary);
+  line-height: 1.7; max-width: 640px; margin: 0 auto 40px;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.hero-cta {
+  display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+  animation: fadeInUp 0.8s ease-out 0.3s both;
+}
+
+.hero-stats {
+  display: flex; gap: 48px; justify-content: center; margin-top: 64px;
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+.stat { text-align: center; }
+.stat-value {
+  font-family: 'Outfit'; font-size: 2rem; font-weight: 800;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+@keyframes fadeInUp {
+  from { opacity:0; transform:translateY(30px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* === SECTIONS === */
+section {
+  position: relative; z-index: 1;
+  padding: 100px 40px;
+}
+
+.section-header {
+  text-align: center; margin-bottom: 64px;
+}
+
+.section-label {
+  display: inline-block; font-family: 'Space Mono';
+  font-size: 0.75rem; color: var(--accent-cyan);
+  text-transform: uppercase; letter-spacing: 3px;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-family: 'Outfit'; font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800; margin-bottom: 16px;
+}
+
+.section-subtitle {
+  font-size: 1rem; color: var(--text-secondary);
+  max-width: 600px; margin: 0 auto; line-height: 1.7;
+}
+
+/* === FEATURES GRID === */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px; max-width: 1200px; margin: 0 auto;
+}
+
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 36px;
+  transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+  position: relative; overflow: hidden;
+}
+
+.feature-card::before {
+  content:''; position:absolute; top:0; left:0; right:0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+  opacity: 0; transition: opacity 0.4s;
+}
+
+.feature-card:hover {
+  border-color: rgba(0,152,234,0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.feature-card:hover::before { opacity: 1; }
+
+.feature-icon {
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; margin-bottom: 20px;
+}
+
+.feature-icon.blue { background: rgba(0,152,234,0.12); }
+.feature-icon.purple { background: rgba(139,92,246,0.12); }
+.feature-icon.green { background: rgba(16,185,129,0.12); }
+.feature-icon.pink { background: rgba(236,72,153,0.12); }
+.feature-icon.orange { background: rgba(245,158,11,0.12); }
+.feature-icon.cyan { background: rgba(0,212,255,0.12); }
+
+.feature-card h3 {
+  font-family: 'Outfit'; font-size: 1.25rem;
+  font-weight: 700; margin-bottom: 12px;
+}
+
+.feature-card p {
+  font-size: 0.9rem; color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* === WALLET SECTION === */
+.wallet-section {
+  max-width: 1200px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
+  align-items: center;
+}
+
+.wallet-visual {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 40px;
+  position: relative; overflow: hidden;
+}
+
+.wallet-visual::after {
+  content:''; position:absolute; top:-50%; right:-50%;
+  width:100%; height:100%;
+  background: radial-gradient(circle, rgba(0,152,234,0.1), transparent);
+  pointer-events: none;
+}
+
+.wallet-card-mock {
+  background: linear-gradient(135deg, #1a1f35, #252b45);
+  border-radius: 20px; padding: 32px;
+  border: 1px solid rgba(255,255,255,0.08);
+  position: relative; z-index: 1;
+}
+
+.wallet-card-top {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 40px;
+}
+.wallet-card-top span {
+  font-family: 'Space Mono'; font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.wallet-balance {
+  font-family: 'Outfit'; font-size: 2.5rem;
+  font-weight: 800; margin-bottom: 8px;
+}
+.wallet-balance-usd {
+  font-size: 0.9rem; color: var(--text-muted);
+}
+
+.wallet-actions-mock {
+  display: flex; gap: 12px; margin-top: 24px;
+}
+.wallet-action-btn {
+  flex:1; padding: 12px; border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text-primary);
+  font-family: 'Sora'; font-size: 0.8rem; font-weight: 600;
+  cursor: pointer; transition: all 0.3s; text-align:center;
+}
+.wallet-action-btn:hover {
+  background: rgba(0,152,234,0.15);
+  border-color: rgba(0,152,234,0.3);
+}
+
+.wallet-info h2 {
+  font-family: 'Outfit'; font-size: 2.5rem;
+  font-weight: 800; margin-bottom: 20px;
+}
+
+.wallet-info p {
+  font-size: 1rem; color: var(--text-secondary);
+  line-height: 1.8; margin-bottom: 32px;
+}
+
+.wallet-features-list {
+  list-style: none; display: flex; flex-direction: column; gap: 16px;
+  margin-bottom: 36px;
+}
+.wallet-features-list li {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 0.95rem; color: var(--text-secondary);
+}
+.wallet-features-list li .check {
+  width: 24px; height: 24px; border-radius: 8px;
+  background: rgba(16,185,129,0.15);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent-green); font-size: 14px; flex-shrink:0;
+}
+
+/* === GAME SECTION === */
+.game-container {
+  max-width: 800px; margin: 0 auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.game-tabs {
+  display: flex; border-bottom: 1px solid var(--border);
+}
+.game-tab {
+  flex:1; padding: 16px;
+  text-align: center; font-weight: 600;
+  font-size: 0.9rem; cursor: pointer;
+  background: transparent; border: none;
+  color: var(--text-secondary);
+  transition: all 0.3s;
+  border-bottom: 2px solid transparent;
+}
+.game-tab.active {
+  color: var(--accent-cyan);
+  border-bottom-color: var(--accent-cyan);
+  background: rgba(0,212,255,0.05);
+}
+.game-tab:hover { color: var(--text-primary); }
+
+.game-area {
+  padding: 40px; display: none;
+  min-height: 400px;
+}
+.game-area.active { display: block; }
+
+/* Memory Game */
+.memory-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; max-width: 400px; margin: 20px auto;
+}
+.memory-card {
+  aspect-ratio: 1; border-radius: 14px;
+  background: linear-gradient(135deg, #1a1f35, #252b45);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; cursor: pointer;
+  transition: all 0.4s;
+  transform-style: preserve-3d;
+}
+.memory-card:hover { border-color: rgba(0,152,234,0.3); transform: scale(1.05); }
+.memory-card.flipped {
+  background: linear-gradient(135deg, rgba(0,152,234,0.2), rgba(139,92,246,0.2));
+  border-color: rgba(0,152,234,0.4);
+  transform: rotateY(180deg);
+}
+.memory-card.matched {
+  background: rgba(16,185,129,0.15);
+  border-color: rgba(16,185,129,0.4);
+  pointer-events: none;
+}
+
+.game-score {
+  text-align: center; margin-bottom: 20px;
+  font-family: 'Space Mono'; font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.game-score span { color: var(--accent-cyan); font-weight: 700; }
+
+/* TON Miner Game */
+.miner-display {
+  text-align: center;
+}
+.miner-coin {
+  width: 160px; height: 160px; margin: 20px auto;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 60px; cursor: pointer;
+  box-shadow: 0 0 60px rgba(0,152,234,0.3);
+  transition: all 0.15s;
+  user-select: none;
+  position: relative;
+}
+.miner-coin:active { transform: scale(0.92); }
+.miner-coin:hover { box-shadow: 0 0 80px rgba(0,152,234,0.5); }
+
+.miner-amount {
+  font-family: 'Outfit'; font-size: 3rem;
+  font-weight: 900; margin: 20px 0 8px;
+}
+.miner-rate {
+  font-size: 0.85rem; color: var(--text-muted);
+  font-family: 'Space Mono';
+}
+
+.miner-upgrades {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; margin-top: 24px;
+}
+.upgrade-btn {
+  padding: 14px 12px; border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--text-primary); cursor: pointer;
+  font-family: 'Sora'; font-size: 0.75rem;
+  transition: all 0.3s; text-align: center;
+}
+.upgrade-btn:hover {
+  border-color: rgba(0,212,255,0.3);
+  background: rgba(0,212,255,0.08);
+}
+.upgrade-btn .cost { color: var(--accent-cyan); font-weight: 700; display:block; margin-top:4px; }
+
+/* Quiz Game */
+.quiz-area { text-align: center; }
+.quiz-question {
+  font-family: 'Outfit'; font-size: 1.3rem;
+  font-weight: 700; margin-bottom: 28px;
+  min-height: 60px;
+}
+.quiz-options {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; max-width: 500px; margin: 0 auto;
+}
+.quiz-option {
+  padding: 16px; border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--text-primary); cursor: pointer;
+  font-family: 'Sora'; font-size: 0.9rem;
+  transition: all 0.3s;
+}
+.quiz-option:hover {
+  border-color: rgba(0,152,234,0.4);
+  background: rgba(0,152,234,0.1);
+}
+.quiz-option.correct {
+  border-color: var(--accent-green);
+  background: rgba(16,185,129,0.15);
+}
+.quiz-option.wrong {
+  border-color: var(--accent-pink);
+  background: rgba(236,72,153,0.15);
+}
+.quiz-progress {
+  margin-top: 24px; font-family: 'Space Mono';
+  font-size: 0.8rem; color: var(--text-muted);
+}
+
+/* === INFRASTRUCTURE === */
+.infra-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px; max-width: 1000px; margin: 0 auto;
+}
+
+.infra-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px; text-align: center;
+  transition: all 0.3s;
+  cursor: default;
+}
+.infra-card:hover {
+  border-color: rgba(0,152,234,0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+}
+.infra-icon {
+  font-size: 32px; margin-bottom: 14px;
+  display: block;
+}
+.infra-card h4 {
+  font-family: 'Outfit'; font-weight: 700;
+  margin-bottom: 8px;
+}
+.infra-card p {
+  font-size: 0.8rem; color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* === ROADMAP === */
+.roadmap {
+  max-width: 700px; margin: 0 auto;
+  position: relative;
+}
+.roadmap::before {
+  content:''; position:absolute; left:24px; top:0; bottom:0;
+  width:2px; background: linear-gradient(to bottom, var(--accent-blue), var(--accent-purple), var(--accent-cyan));
+}
+
+.roadmap-item {
+  display: flex; gap: 32px; margin-bottom: 48px;
+  position: relative;
+}
+.roadmap-dot {
+  width: 50px; height: 50px; flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2px solid var(--accent-blue);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; z-index: 1;
+}
+.roadmap-dot.done { background: rgba(16,185,129,0.15); border-color: var(--accent-green); }
+.roadmap-dot.active { background: rgba(0,152,234,0.15); border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(0,152,234,0.3); }
+
+.roadmap-content h4 {
+  font-family: 'Outfit'; font-weight: 700;
+  font-size: 1.1rem; margin-bottom: 8px;
+}
+.roadmap-content p {
+  font-size: 0.85rem; color: var(--text-secondary);
+  line-height: 1.7;
+}
+.roadmap-tag {
+  display: inline-block; margin-top: 8px;
+  padding: 4px 12px; border-radius: 50px;
+  font-size: 0.7rem; font-weight: 600;
+}
+.roadmap-tag.done { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+.roadmap-tag.progress { background: rgba(0,152,234,0.15); color: var(--accent-cyan); }
+.roadmap-tag.upcoming { background: rgba(139,92,246,0.15); color: var(--accent-purple); }
+
+/* === WALLET CONNECT MODAL === */
+.wallet-status {
+  padding: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+}
+.wallet-address {
+  font-family: 'Space Mono'; font-size: 0.8rem;
+  color: var(--accent-cyan); word-break: break-all;
+}
+
+/* === FOOTER === */
+footer {
+  position: relative; z-index:1;
+  padding: 60px 40px 32px;
+  border-top: 1px solid var(--border);
+}
+.footer-grid {
+  max-width: 1200px; margin: 0 auto;
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px; margin-bottom: 48px;
+}
+.footer-brand p {
+  font-size: 0.85rem; color: var(--text-muted);
+  line-height: 1.7; margin-top: 12px; max-width: 300px;
+}
+.footer-col h4 {
+  font-family: 'Outfit'; font-weight: 700;
+  margin-bottom: 16px; font-size: 0.95rem;
+}
+.footer-col a {
+  display: block; color: var(--text-muted);
+  text-decoration: none; font-size: 0.85rem;
+  margin-bottom: 10px; transition: color 0.3s;
+}
+.footer-col a:hover { color: var(--accent-cyan); }
+
+.footer-bottom {
+  max-width: 1200px; margin: 0 auto;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between;
+  align-items: center; font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* === MOBILE === */
+@media (max-width: 768px) {
+  .navbar { padding: 12px 20px; }
+  .nav-links { display: none; }
+  section { padding: 60px 20px; }
+  .wallet-section { grid-template-columns: 1fr; gap: 40px; }
+  .hero-stats { gap: 24px; flex-wrap: wrap; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .quiz-options { grid-template-columns: 1fr; }
+  .miner-upgrades { grid-template-columns: 1fr; }
+  .memory-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; max-width: 300px; }
+}
+
+/* === ANIMATION UTILITIES === */
+.fade-in { opacity: 0; transform: translateY(24px); transition: all 0.6s ease-out; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* === NOTIFICATION === */
+.notification {
+  position: fixed; top: 80px; right: 20px; z-index: 9999;
+  padding: 14px 24px; border-radius: 14px;
+  background: var(--bg-card);
+  border: 1px solid rgba(0,152,234,0.3);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  font-size: 0.85rem; color: var(--text-primary);
+  transform: translateX(120%);
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.notification.show { transform: translateX(0); }
+
+/* Particle tap effect */
+.tap-particle {
+  position: absolute;
+  pointer-events: none;
+  font-size: 16px;
+  animation: particleFly 0.8s ease-out forwards;
+}
+@keyframes particleFly {
+  0% { opacity:1; transform: translate(0,0) scale(1); }
+  100% { opacity:0; transform: translate(var(--tx), var(--ty)) scale(0); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: #2a2e42; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3f58; }
+</style>
+</head>
+<body>
+
+<!-- Background Effects -->
+<div class="bg-mesh"></div>
+<div class="floating-orbs">
+  <div class="orb"></div><div class="orb"></div><div class="orb"></div>
+</div>
+<div class="grid-overlay"></div>
+
+<!-- Notification -->
+<div class="notification" id="notification"></div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="nav-logo">
+    <div class="logo-icon">⬡</div>
+    TON AI Agent
+  </div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#wallet">Wallet</a></li>
+    <li><a href="#games">Games</a></li>
+    <li><a href="#infra">Infrastructure</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn btn-outline" id="connectWalletBtn" onclick="connectWallet()">
+      🔗 Connect Wallet
+    </button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="pulse"></span> Live on TON Mainnet
+    </div>
+    <h1>
+      The Future of<br>
+      <span class="gradient-text">AI Agents on TON</span>
+    </h1>
+    <p>
+      Build, deploy, and interact with autonomous AI agents powered by the TON blockchain.
+      Seamless payments, decentralized storage, and intelligent automation — all in one ecosystem.
+    </p>
+    <div class="hero-cta">
+      <button class="btn btn-glow" onclick="connectWallet()">🚀 Launch App</button>
+      <a href="#features" class="btn btn-outline">Explore Features →</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-value" id="agentCount">2,847</div>
+        <div class="stat-label">Active Agents</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">$1.2M</div>
+        <div class="stat-label">Total Volume</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">14,200+</div>
+        <div class="stat-label">Transactions</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">99.9%</div>
+        <div class="stat-label">Uptime</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features">
+  <div class="section-header">
+    <div class="section-label">// Features</div>
+    <h2 class="section-title">Powered by TON Infrastructure</h2>
+    <p class="section-subtitle">Leveraging every layer of the TON ecosystem to build the most powerful AI agent platform.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card fade-in">
+      <div class="feature-icon blue">🤖</div>
+      <h3>TON MCP Integration</h3>
+      <p>Model Context Protocol enables AI agents to interact directly with TON smart contracts, read chain data, and execute transactions autonomously.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon purple">👛</div>
+      <h3>Agentic Wallet</h3>
+      <p>Non-custodial wallets controlled by AI agents with programmable spending limits, multi-sig support, and automated payment workflows.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon green">🌐</div>
+      <h3>TON Sites</h3>
+      <p>Deploy agent interfaces on decentralized TON Sites. No hosting needed — your AI agent lives entirely on-chain with zero downtime.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon pink">💾</div>
+      <h3>TON Storage</h3>
+      <p>Persistent decentralized storage for agent memory, training data, and configuration. Redundant, censorship-resistant, always available.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon orange">🔗</div>
+      <h3>TON DNS</h3>
+      <p>Human-readable addresses for your AI agents. Register .ton domains and let users interact naturally with agent-name.ton.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon cyan">⚡</div>
+      <h3>TON Payment Channels</h3>
+      <p>Instant off-chain micropayments between agents and users. Pay per API call, per task, per second — near-zero fees.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Wallet -->
+<section id="wallet">
+  <div class="wallet-section">
+    <div class="wallet-visual">
+      <div class="wallet-card-mock">
+        <div class="wallet-card-top">
+          <span>TON AI WALLET</span>
+          <span>⬡ MAINNET</span>
+        </div>
+        <div class="wallet-balance" id="walletBalanceDisplay">0.00 TON</div>
+        <div class="wallet-balance-usd">≈ $0.00 USD</div>
+        <div class="wallet-actions-mock">
+          <button class="wallet-action-btn" onclick="showNotif('📤 Send feature coming soon!')">Send</button>
+          <button class="wallet-action-btn" onclick="showNotif('📥 Receive: Copy your address!')">Receive</button>
+          <button class="wallet-action-btn" onclick="showNotif('🔄 Swap powered by TON DEX')">Swap</button>
+        </div>
+      </div>
+    </div>
+    <div class="wallet-info">
+      <div class="section-label">// Wallet</div>
+      <h2>Connect Your<br>TON Wallet</h2>
+      <p>Seamlessly connect your TON wallet to interact with AI agents, make payments, and manage your on-chain assets. Supports TON Connect 2.0 for maximum compatibility.</p>
+      <ul class="wallet-features-list">
+        <li><span class="check">✓</span> TON Connect 2.0 Protocol</li>
+        <li><span class="check">✓</span> Tonkeeper, OpenMask & MyTonWallet</li>
+        <li><span class="check">✓</span> Secure Transaction Signing</li>
+        <li><span class="check">✓</span> Real-time Balance Updates</li>
+      </ul>
+      <button class="btn btn-primary" onclick="connectWallet()">🔗 Connect Wallet</button>
+      <div id="walletStatus" style="margin-top:16px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Games -->
+<section id="games">
+  <div class="section-header">
+    <div class="section-label">// Play & Earn</div>
+    <h2 class="section-title">Mini Games Arena</h2>
+    <p class="section-subtitle">Play games, earn rewards, and experience the power of AI agents on TON.</p>
+  </div>
+  <div class="game-container">
+    <div class="game-tabs">
+      <button class="game-tab active" onclick="switchGame('memory')">🧠 Memory Match</button>
+      <button class="game-tab" onclick="switchGame('miner')">⛏️ TON Miner</button>
+      <button class="game-tab" onclick="switchGame('quiz')">❓ TON Quiz</button>
+    </div>
+    <div class="game-area active" id="game-memory">
+      <div class="game-score">Moves: <span id="memoryMoves">0</span> | Matched: <span id="memoryMatched">0</span>/8</div>
+      <div class="memory-grid" id="memoryGrid"></div>
+      <div style="text-align:center; margin-top:20px;">
+        <button class="btn btn-outline" onclick="initMemoryGame()">🔄 New Game</button>
+      </div>
+    </div>
+    <div class="game-area" id="game-miner">
+      <div class="miner-display">
+        <div class="miner-coin" id="minerCoin" onclick="mineTON(event)">⬡</div>
+        <div class="miner-amount" id="minerAmount">0.000</div>
+        <div class="miner-rate">+<span id="minerRate">0.001</span> TON / tap</div>
+        <div class="miner-upgrades">
+          <button class="upgrade-btn" onclick="buyUpgrade('power')">
+            ⚡ Power Tap<span class="cost" id="powerCost">0.05 TON</span>
+          </button>
+          <button class="upgrade-btn" onclick="buyUpgrade('auto')">
+            🤖 Auto Mine<span class="cost" id="autoCost">0.20 TON</span>
+          </button>
+          <button class="upgrade-btn" onclick="buyUpgrade('multi')">
+            ✨ Multi Tap<span class="cost" id="multiCost">0.50 TON</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="game-area" id="game-quiz">
+      <div class="quiz-area">
+        <div class="game-score">Score: <span id="quizScore">0</span> / <span id="quizTotal">0</span></div>
+        <div class="quiz-question" id="quizQuestion">Loading...</div>
+        <div class="quiz-options" id="quizOptions"></div>
+        <div class="quiz-progress" id="quizProgress"></div>
+        <div style="margin-top:20px;">
+          <button class="btn btn-outline" onclick="initQuiz()" id="nextQuizBtn" style="display:none;">Next Question →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Infrastructure -->
+<section id="infra">
+  <div class="section-header">
+    <div class="section-label">// Infrastructure</div>
+    <h2 class="section-title">TON Ecosystem Tools</h2>
+    <p class="section-subtitle">Built on battle-tested TON infrastructure for reliability at scale.</p>
+  </div>
+  <div class="infra-grid">
+    <div class="infra-card fade-in">
+      <span class="infra-icon">⬡</span>
+      <h4>TON Blockchain</h4>
+      <p>Ultra-fast, sharded L1 with sub-second finality</p>
+    </div>
+    <div class="infra-card fade-in">
+      <span class="infra-icon">🔌</span>
+      <h4>TON MCP</h4>
+      <p>Model Context Protocol for AI-chain interaction</p>
+    </div>
+    <div class="infra-card fade-in">
+      <span class="infra-icon">👛</span>
+      <h4>Agentic Wallet</h4>
+      <p>Programmable AI-controlled wallets</p>
+    </div>
+    <div class="infra-card fade-in">
+      <span class="infra-icon">🌐</span>
+      <h4>TON Sites</h4>
+      <p>Decentralized web hosting on TON</p>
+    </div>
+    <div class="infra-card fade-in">
+      <span class="infra-icon">💾</span>
+      <h4>TON Storage</h4>
+      <p>Distributed file storage layer</p>
+    </div>
+    <div class="infra-card fade-in">
+      <span class="infra-icon">🏷️</span>
+      <h4>TON DNS</h4>
+      <p>Human-readable blockchain addresses</p>
+    </div>
+    <div class="infra-card fade-in">
+      <span class="infra-icon">⚡</span>
+      <h4>Payment Channels</h4>
+      <p>Instant off-chain micropayments</p>
+    </div>
+    <div class="infra-card fade-in">
+      <span class="infra-icon">🤖</span>
+      <h4>Telegram Bot API</h4>
+      <p>Native Telegram integration for agents</p>
+    </div>
+  </div>
+</section>
+
+<!-- Roadmap -->
+<section id="roadmap">
+  <div class="section-header">
+    <div class="section-label">// Roadmap</div>
+    <h2 class="section-title">Building the Future</h2>
+    <p class="section-subtitle">Our journey to create the most advanced AI agent platform on TON.</p>
+  </div>
+  <div class="roadmap">
+    <div class="roadmap-item fade-in">
+      <div class="roadmap-dot done">✓</div>
+      <div class="roadmap-content">
+        <h4>Phase 1 — Foundation</h4>
+        <p>Core smart contracts, TON Connect integration, basic agent framework, and wallet infrastructure.</p>
+        <span class="roadmap-tag done">Completed</span>
+      </div>
+    </div>
+    <div class="roadmap-item fade-in">
+      <div class="roadmap-dot done">✓</div>
+      <div class="roadmap-content">
+        <h4>Phase 2 — Intelligence Layer</h4>
+        <p>TON MCP integration, agent memory via TON Storage, payment channel support for micropayments.</p>
+        <span class="roadmap-tag done">Completed</span>
+      </div>
+    </div>
+    <div class="roadmap-item fade-in">
+      <div class="roadmap-dot active">⬡</div>
+      <div class="roadmap-content">
+        <h4>Phase 3 — Agent Marketplace</h4>
+        <p>Launch agent marketplace on TON Sites, TON DNS registration, community agent templates, and governance.</p>
+        <span class="roadmap-tag progress">In Progress</span>
+      </div>
+    </div>
+    <div class="roadmap-item fade-in">
+      <div class="roadmap-dot">🔮</div>
+      <div class="roadmap-content">
+        <h4>Phase 4 — Agent-to-Agent Economy</h4>
+        <p>Autonomous agent interactions, multi-agent coordination, decentralized agent reputation system, and advanced AI models.</p>
+        <span class="roadmap-tag upcoming">Q3 2026</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" style="margin-bottom:4px;">
+        <div class="logo-icon">⬡</div>
+        TON AI Agent
+      </div>
+      <p>Building the next generation of autonomous AI agents on the TON blockchain ecosystem.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="#features">Features</a>
+      <a href="#games">Games</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#">Documentation</a>
+    </div>
+    <div class="footer-col">
+      <h4>Developers</h4>
+      <a href="#">API Reference</a>
+      <a href="#">SDK</a>
+      <a href="#">Smart Contracts</a>
+      <a href="#">GitHub</a>
+    </div>
+    <div class="footer-col">
+      <h4>Community</h4>
+      <a href="#">Telegram</a>
+      <a href="#">Twitter</a>
+      <a href="#">Discord</a>
+      <a href="#">Blog</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 TON AI Agent. Built on TON.</span>
+    <span>Powered by TON MCP &amp; Agentic Wallet</span>
+  </div>
+</footer>
+
+<script>
+// ==========================================
+// TON CONNECT WALLET
+// ==========================================
+let tonConnectUI = null;
+let walletConnected = false;
+
+function initTonConnect() {
+  try {
+    tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+      manifestUrl: 'https://raw.githubusercontent.com/nicelog777/TON-AI-Agents/main/tonconnect-manifest.json',
+      buttonRootId: null
+    });
+
+    tonConnectUI.onStatusChange(wallet => {
+      if (wallet) {
+        walletConnected = true;
+        const addr = wallet.account.address;
+        const short = addr.slice(0,6) + '...' + addr.slice(-4);
+        document.getElementById('connectWalletBtn').innerHTML = '✅ ' + short;
+        document.getElementById('walletStatus').innerHTML =
+          '<div class="wallet-status"><div style="color:var(--accent-green);font-weight:600;margin-bottom:8px;">✅ Wallet Connected</div><div class="wallet-address">' + addr + '</div></div>';
+        document.getElementById('walletBalanceDisplay').textContent = '••• TON';
+        showNotif('🎉 Wallet connected successfully!');
+      } else {
+        walletConnected = false;
+        document.getElementById('connectWalletBtn').innerHTML = '🔗 Connect Wallet';
+        document.getElementById('walletStatus').innerHTML = '';
+        document.getElementById('walletBalanceDisplay').textContent = '0.00 TON';
+      }
+    });
+  } catch(e) {
+    console.log('TON Connect init (will work with manifest):', e.message);
+  }
+}
+
+function connectWallet() {
+  if (tonConnectUI) {
+    if (walletConnected) {
+      tonConnectUI.disconnect();
+    } else {
+      tonConnectUI.openModal();
+    }
+  } else {
+    showNotif('⚠️ Please deploy to use TON Connect');
+  }
+}
+
+// ==========================================
+// NOTIFICATION
+// ==========================================
+function showNotif(msg) {
+  const n = document.getElementById('notification');
+  n.textContent = msg;
+  n.classList.add('show');
+  setTimeout(() => n.classList.remove('show'), 3000);
+}
+
+// ==========================================
+// MEMORY GAME
+// ==========================================
+const MEMORY_EMOJIS = ['⬡','🤖','👛','⚡','🌐','💾','🔗','🔮'];
+let memoryCards = [], flippedCards = [], memoryMoves = 0, memoryMatched = 0, memoryLocked = false;
+
+function initMemoryGame() {
+  memoryMoves = 0; memoryMatched = 0;
+  flippedCards = []; memoryLocked = false;
+  document.getElementById('memoryMoves').textContent = '0';
+  document.getElementById('memoryMatched').textContent = '0';
+
+  const pairs = [...MEMORY_EMOJIS, ...MEMORY_EMOJIS];
+  memoryCards = pairs.sort(() => Math.random() - 0.5);
+
+  const grid = document.getElementById('memoryGrid');
+  grid.innerHTML = '';
+  memoryCards.forEach((emoji, i) => {
+    const card = document.createElement('div');
+    card.className = 'memory-card';
+    card.dataset.index = i;
+    card.dataset.emoji = emoji;
+    card.textContent = '?';
+    card.style.fontSize = '20px';
+    card.addEventListener('click', () => flipCard(card));
+    grid.appendChild(card);
+  });
+}
+
+function flipCard(card) {
+  if (memoryLocked || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+  card.classList.add('flipped');
+  card.textContent = card.dataset.emoji;
+  card.style.fontSize = '28px';
+  flippedCards.push(card);
+
+  if (flippedCards.length === 2) {
+    memoryMoves++;
+    document.getElementById('memoryMoves').textContent = memoryMoves;
+    memoryLocked = true;
+
+    if (flippedCards[0].dataset.emoji === flippedCards[1].dataset.emoji) {
+      flippedCards[0].classList.add('matched');
+      flippedCards[1].classList.add('matched');
+      memoryMatched++;
+      document.getElementById('memoryMatched').textContent = memoryMatched;
+      flippedCards = [];
+      memoryLocked = false;
+      if (memoryMatched === 8) {
+        setTimeout(() => showNotif('🏆 You won in ' + memoryMoves + ' moves!'), 300);
+      }
+    } else {
+      setTimeout(() => {
+        flippedCards[0].classList.remove('flipped');
+        flippedCards[0].textContent = '?';
+        flippedCards[0].style.fontSize = '20px';
+        flippedCards[1].classList.remove('flipped');
+        flippedCards[1].textContent = '?';
+        flippedCards[1].style.fontSize = '20px';
+        flippedCards = [];
+        memoryLocked = false;
+      }, 800);
+    }
+  }
+}
+
+// ==========================================
+// TON MINER GAME
+// ==========================================
+let minerBalance = 0, tapPower = 0.001, autoRate = 0, multiTap = 1;
+let powerLevel = 0, autoLevel = 0, multiLevel = 0;
+
+function mineTON(e) {
+  const amount = tapPower * multiTap;
+  minerBalance += amount;
+  document.getElementById('minerAmount').textContent = minerBalance.toFixed(3);
+
+  // Particle effect
+  for (let i = 0; i < multiTap; i++) {
+    const p = document.createElement('div');
+    p.className = 'tap-particle';
+    p.textContent = '+' + tapPower.toFixed(3);
+    p.style.cssText = `color:var(--accent-cyan);font-family:'Space Mono';font-weight:700;left:${e.offsetX + (Math.random()-0.5)*40}px;top:${e.offsetY}px;--tx:${(Math.random()-0.5)*80}px;--ty:${-60-Math.random()*40}px;`;
+    document.getElementById('minerCoin').appendChild(p);
+    setTimeout(() => p.remove(), 800);
+  }
+}
+
+function buyUpgrade(type) {
+  if (type === 'power') {
+    const cost = 0.05 * Math.pow(2, powerLevel);
+    if (minerBalance >= cost) {
+      minerBalance -= cost; powerLevel++;
+      tapPower = 0.001 * Math.pow(2, powerLevel);
+      document.getElementById('minerRate').textContent = (tapPower * multiTap).toFixed(3);
+      document.getElementById('powerCost').textContent = (0.05 * Math.pow(2, powerLevel)).toFixed(2) + ' TON';
+      showNotif('⚡ Tap power upgraded!');
+    } else { showNotif('❌ Not enough TON!'); }
+  } else if (type === 'auto') {
+    const cost = 0.20 * Math.pow(2, autoLevel);
+    if (minerBalance >= cost) {
+      minerBalance -= cost; autoLevel++;
+      if (autoLevel === 1) {
+        setInterval(() => {
+          minerBalance += tapPower * autoLevel * 0.5;
+          document.getElementById('minerAmount').textContent = minerBalance.toFixed(3);
+        }, 1000);
+      }
+      autoRate = tapPower * autoLevel * 0.5;
+      document.getElementById('autoCost').textContent = (0.20 * Math.pow(2, autoLevel)).toFixed(2) + ' TON';
+      showNotif('🤖 Auto-miner upgraded!');
+    } else { showNotif('❌ Not enough TON!'); }
+  } else if (type === 'multi') {
+    const cost = 0.50 * Math.pow(2, multiLevel);
+    if (minerBalance >= cost) {
+      minerBalance -= cost; multiLevel++;
+      multiTap = 1 + multiLevel;
+      document.getElementById('minerRate').textContent = (tapPower * multiTap).toFixed(3);
+      document.getElementById('multiCost').textContent = (0.50 * Math.pow(2, multiLevel)).toFixed(2) + ' TON';
+      showNotif('✨ Multi-tap x' + multiTap + '!');
+    } else { showNotif('❌ Not enough TON!'); }
+  }
+  document.getElementById('minerAmount').textContent = minerBalance.toFixed(3);
+}
+
+// ==========================================
+// TON QUIZ GAME
+// ==========================================
+const QUIZ_DATA = [
+  { q: 'What consensus mechanism does TON use?', a: ['BFT PoS', 'Proof of Work', 'DPoS', 'Proof of Authority'], c: 0 },
+  { q: 'Who originally created the TON blockchain?', a: ['Telegram team', 'Vitalik Buterin', 'Satoshi Nakamoto', 'Gavin Wood'], c: 0 },
+  { q: 'What is the native token of TON?', a: ['Toncoin', 'TETH', 'TonToken', 'GRAM'], c: 0 },
+  { q: 'What does MCP stand for in TON MCP?', a: ['Model Context Protocol', 'Multi Chain Platform', 'Main Core Process', 'Mining Control Panel'], c: 0 },
+  { q: 'Which messaging app is TON deeply integrated with?', a: ['Telegram', 'WhatsApp', 'Signal', 'Discord'], c: 0 },
+  { q: 'What is TON DNS used for?', a: ['Human-readable addresses', 'Mining optimization', 'Token staking', 'Data encryption'], c: 0 },
+  { q: 'What enables instant micropayments on TON?', a: ['Payment Channels', 'Smart Routing', 'Bridge Protocol', 'Flash Loans'], c: 0 },
+  { q: 'What technology does TON use for scalability?', a: ['Sharding', 'Sidechains', 'Rollups', 'Plasma'], c: 0 },
+  { q: 'What is the TON storage system for?', a: ['Decentralized file storage', 'Token cold storage', 'NFT caching', 'Block archives only'], c: 0 },
+  { q: 'What protocol is used to connect wallets to TON dApps?', a: ['TON Connect', 'WalletConnect', 'MetaMask SDK', 'Web3Auth'], c: 0 },
+];
+
+let quizCurrent = 0, quizScore = 0, quizAnswered = false, shuffledQuiz = [];
+
+function initQuiz() {
+  shuffledQuiz = [...QUIZ_DATA].sort(() => Math.random() - 0.5).slice(0, 5);
+  quizCurrent = 0; quizScore = 0; quizAnswered = false;
+  document.getElementById('quizScore').textContent = '0';
+  document.getElementById('quizTotal').textContent = '0';
+  document.getElementById('nextQuizBtn').style.display = 'none';
+  showQuizQuestion();
+}
+
+function showQuizQuestion() {
+  if (quizCurrent >= shuffledQuiz.length) {
+    document.getElementById('quizQuestion').textContent = '🏆 Quiz Complete!';
+    document.getElementById('quizOptions').innerHTML = '';
+    document.getElementById('quizProgress').textContent = 'Final Score: ' + quizScore + '/' + shuffledQuiz.length;
+    document.getElementById('nextQuizBtn').style.display = 'none';
+    showNotif('🎉 Score: ' + quizScore + '/' + shuffledQuiz.length);
+    return;
+  }
+
+  quizAnswered = false;
+  const q = shuffledQuiz[quizCurrent];
+  document.getElementById('quizQuestion').textContent = q.q;
+  document.getElementById('quizProgress').textContent = 'Question ' + (quizCurrent+1) + ' of ' + shuffledQuiz.length;
+
+  const optDiv = document.getElementById('quizOptions');
+  optDiv.innerHTML = '';
+  q.a.forEach((ans, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = ans;
+    btn.onclick = () => answerQuiz(i, btn);
+    optDiv.appendChild(btn);
+  });
+}
+
+function answerQuiz(idx, btn) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const q = shuffledQuiz[quizCurrent];
+
+  document.querySelectorAll('.quiz-option').forEach((b, i) => {
+    if (i === q.c) b.classList.add('correct');
+    else if (i === idx && idx !== q.c) b.classList.add('wrong');
+  });
+
+  if (idx === q.c) {
+    quizScore++;
+    document.getElementById('quizScore').textContent = quizScore;
+  }
+  document.getElementById('quizTotal').textContent = quizCurrent + 1;
+
+  document.getElementById('nextQuizBtn').style.display = 'inline-flex';
+  document.getElementById('nextQuizBtn').onclick = () => {
+    quizCurrent++;
+    document.getElementById('nextQuizBtn').style.display = 'none';
+    showQuizQuestion();
+  };
+}
+
+// ==========================================
+// GAME TABS
+// ==========================================
+function switchGame(game) {
+  document.querySelectorAll('.game-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.game-area').forEach(a => a.classList.remove('active'));
+  document.getElementById('game-' + game).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ==========================================
+// SCROLL ANIMATIONS
+// ==========================================
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ==========================================
+// INIT
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+  initTonConnect();
+  initMemoryGame();
+  initQuiz();
+
+  // Counter animation
+  let count = 2800;
+  const counter = document.getElementById('agentCount');
+  setInterval(() => {
+    count += Math.floor(Math.random() * 3);
+    counter.textContent = count.toLocaleString();
+  }, 5000);
+});
+</script>
+</body>
+</html>
