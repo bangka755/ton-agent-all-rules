@@ -7,6 +7,9 @@
 
 ## 🚀 Features
 
+<img width="1268" height="876" alt="image" src="https://github.com/user-attachments/assets/93357bda-81cc-4221-9801-2ccef3020918" />
+
+
 - **TON Connect 2.0** — Seamless wallet connection (Tonkeeper, OpenMask, MyTonWallet)
 - **TON MCP Integration** — Model Context Protocol for AI-chain interaction
 - **Agentic Wallet** — Programmable AI-controlled wallets
